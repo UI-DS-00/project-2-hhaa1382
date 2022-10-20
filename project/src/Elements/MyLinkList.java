@@ -80,4 +80,12 @@ public class MyLinkList<E>{
         }
         return hold;
     }
+
+    public E get(int index){
+        Node<E> temp=head;
+        for(int i=0;i<index;i++){
+            temp=temp.getNext();
+        }
+        return temp.getElement();
+    }
 }
