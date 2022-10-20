@@ -1,3 +1,5 @@
+package Elements;
+
 public class Music {
     private String artistName;
     private String trackName;

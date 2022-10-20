@@ -1,3 +1,5 @@
+package Elements;
+
 public class MyLinkList<E>{
     private static class Node<E>{
         Node<E> next;
