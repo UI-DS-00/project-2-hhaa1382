@@ -12,10 +12,6 @@ public class Main {
 //            Music m=musics.get(i);
 //            System.out.println("Artist name : "+m.getArtistName()+"   track name : "+m.getTrackName()+"   date : "+m.getReleaseDate());
 //        }
-        System.out.println(musics.size());
-        musics.remove(1);
-        System.out.println(musics.size());
         new MusicListPart(musics);
-
     }
 }
