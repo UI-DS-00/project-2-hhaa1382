@@ -1,6 +1,6 @@
 package Elements;
 
-public class PlayList {
+public class PlayList implements Comparable<PlayList>{
     private MyLinkList<Music> musics;
     private final String name;
 
@@ -28,5 +28,10 @@ public class PlayList {
 
     public MyLinkList<Music> getMusics(){
         return this.musics;
+    }
+
+    @Override
+    public int compareTo(PlayList o) {
+        return 0;
     }
 }

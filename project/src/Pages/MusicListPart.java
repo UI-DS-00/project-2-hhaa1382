@@ -12,17 +12,24 @@ public class MusicListPart extends JFrame {
 
     private final JComboBox<String> playListsName=new JComboBox<>();
 
-    private DefaultListModel<String> values=new DefaultListModel<>();
+    private final DefaultListModel<String> values=new DefaultListModel<>();
     private JList<String> list;
-    JScrollPane panel;
+    private final JScrollPane panel;
 
     public MusicListPart(MyLinkList<Music> allMusics){
         musics=allMusics;
         playLists.addLast(new PlayList(allMusics,"All musics"));
         playListsName.addItem("All musics");
 
-        playLists.addLast(new PlayList("fav1"));
+        PlayList pl=new PlayList("fav1");
+        pl.addMusic(allMusics.get(1));
+        playLists.addLast(pl);
         playListsName.addItem("fav1");
+
+        PlayList pl1=new PlayList("fav2");
+        pl1.addMusic(allMusics.get(0));
+        playLists.addLast(pl1);
+        playListsName.addItem("fav2");
 
         this.setTitle("Music Player");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -31,17 +38,15 @@ public class MusicListPart extends JFrame {
         this.setLocationRelativeTo(null);
         this.setLayout(null);
 
-        playListsName.setBounds(530,60,150,30);
+        playListsName.setBounds(530,170,150,30);
 
         JButton btnSwitch=new JButton("Switch");
-        btnSwitch.setBounds(530,110,150,30);
+        btnSwitch.setBounds(530,210,150,30);
         btnSwitch.addActionListener(e->{
             int index=playListsName.getSelectedIndex();
             if(index!=-1){
-                values=new DefaultListModel<>();
+                values.removeAllElements();
                 addMusicList(values,playLists.get(index).getMusics());
-                list=new JList<>(values);
-                panel.setViewportView(list);
                 setMusicList(playLists.get(index));
             }
         });
@@ -62,8 +67,59 @@ public class MusicListPart extends JFrame {
             }
         });
 
+        JButton btnRemovePlayList=new JButton("Remove Play List");
+        btnRemovePlayList.setBounds(530,50,150,30);
+        btnRemovePlayList.addActionListener(e->{
+            int index=playListsName.getSelectedIndex();
+            if(index!=-1){
+                playLists.remove(index);
+                playListsName.removeItemAt(index);
+                values.removeAllElements();
+            }
+        });
+
+        JButton btnMerge=new JButton("Merge");
+        btnMerge.setBounds(530,110,150,30);
+        btnMerge.addActionListener(e->{
+            String[] valuesName=new String[playLists.size()];
+            for(int i=0;i<playLists.size();i++){
+                valuesName[i]=playLists.get(i).getName();
+            }
+
+            String ans=(String) JOptionPane.showInputDialog(null,"Choose a play list","Play lists",
+                    JOptionPane.QUESTION_MESSAGE,null,valuesName,null);
+
+            if(ans!=null){
+                int firstIndex=playListsName.getSelectedIndex();
+                int secondIndex=getIndex(ans,valuesName);
+
+                MyLinkList<Music> secondList=playLists.get(secondIndex).getMusics();
+                MyLinkList<Music> firstList=playLists.get(firstIndex).getMusics();
+                MyLinkList<Music> newList=new MyLinkList<>();
+
+                for(int i=0;i<firstList.size();i++){
+                    newList.addLast(firstList.get(i));
+                }
+
+                for(int i=0;i<secondList.size();i++){
+                    if(!newList.contain(secondList.get(i))) {
+                        newList.addLast(secondList.get(i));
+                    }
+                }
+
+                String name=playLists.get(firstIndex).getName()+" & "+playLists.get(secondIndex).getName();
+                PlayList p=new PlayList(newList,name);
+                playLists.addLast(p);
+                playListsName.addItem(name);
+                values.removeAllElements();
+                addMusicList(values,newList);
+
+                JOptionPane.showMessageDialog(null,"Play lists merged");
+            }
+        });
+
         JButton btnAddMusic=new JButton("Add Music");
-        btnAddMusic.setBounds(530,160,150,30);
+        btnAddMusic.setBounds(530,270,150,30);
         btnAddMusic.addActionListener(e->{
             String[] valuesName=new String[playLists.size()];
             for(int i=0;i<playLists.size();i++){
@@ -80,7 +136,7 @@ public class MusicListPart extends JFrame {
         });
 
         JButton btnRemoveMusic=new JButton("Remove music");
-        btnRemoveMusic.setBounds(530,200,150,30);
+        btnRemoveMusic.setBounds(530,310,150,30);
         btnRemoveMusic.addActionListener(e->{
             int index=playListsName.getSelectedIndex();
             if(index!=-1){
@@ -99,6 +155,8 @@ public class MusicListPart extends JFrame {
         panel.setBounds(10,10,500,400);
 
         this.add(btnAddPlayList);
+        this.add(btnRemovePlayList);
+        this.add(btnMerge);
         this.add(playListsName);
         this.add(btnSwitch);
         this.add(btnAddMusic);

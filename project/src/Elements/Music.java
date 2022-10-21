@@ -1,6 +1,6 @@
 package Elements;
 
-public class Music {
+public class Music implements Comparable<Music>{
     private String artistName;
     private String trackName;
     private int releaseDate;
@@ -68,5 +68,34 @@ public class Music {
     @Override
     public String toString(){
         return "Track name : "+this.trackName+"   ---   artist : "+this.artistName;
+    }
+
+    @Override
+    public int compareTo(Music o) {
+        if(this.artistName.compareTo(o.getArtistName())>0){
+            return 1;
+        }
+        else if(this.artistName.compareTo(o.getArtistName())<0){
+            return -1;
+        }
+        else{
+            if(this.trackName.compareTo(o.getTrackName())>0){
+                return 1;
+            }
+            else if(this.trackName.compareTo(o.getTrackName())<0){
+                return -1;
+            }
+            else{
+                if(this.getReleaseDate()>o.getReleaseDate()){
+                    return 1;
+                }
+                else if(this.getReleaseDate()<o.getReleaseDate()){
+                    return -1;
+                }
+                else{
+                    return 0;
+                }
+            }
+        }
     }
 }

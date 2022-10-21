@@ -1,6 +1,6 @@
 package Elements;
 
-public class MyLinkList<E>{
+public class MyLinkList<E extends Comparable<E>>{
     private static class Node<E>{
         Node<E> next;
         E element;
@@ -106,6 +106,35 @@ public class MyLinkList<E>{
                 head = head.getNext();
             }
             size--;
+        }
+    }
+
+    public boolean contain(E element){
+        Node<E> temp=head;
+        while (temp!=null){
+            if(temp.getElement()==element){
+                return true;
+            }
+            temp=temp.getNext();
+        }
+        return false;
+    }
+
+    public void sort(){
+        Node<E> current=head;
+        Node<E> next;
+
+        while (current!=null){
+            next=head.getNext();
+            while (next!=null){
+                if(current.getElement().compareTo(next.getElement())<0){
+                    E temp=current.getElement();
+                    current.element=next.getElement();
+                    next.element=temp;
+                }
+                next=next.getNext();
+            }
+            current=current.getNext();
         }
     }
 }
