@@ -64,4 +64,9 @@ public class Music {
     public void setTopic(String topic) {
         this.topic = topic;
     }
+
+    @Override
+    public String toString(){
+        return "Track name : "+this.trackName+"   ---   artist : "+this.artistName;
+    }
 }
