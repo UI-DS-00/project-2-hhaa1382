@@ -88,4 +88,24 @@ public class MyLinkList<E>{
         }
         return temp.getElement();
     }
+
+    public void remove(int index){
+        if(index<size) {
+            Node<E> current = head;
+            Node<E> pre = null;
+
+            for (int i = 0; i < index; i++) {
+                pre = current;
+                current = current.getNext();
+            }
+
+            if (pre != null) {
+                pre.next = current.getNext();
+            }
+            else {
+                head = head.getNext();
+            }
+            size--;
+        }
+    }
 }
