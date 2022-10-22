@@ -18,24 +18,21 @@ public class MusicListPart extends JFrame {
     private JList<String> list;
     private final JScrollPane panel;
 
+    PlayList likePlayList=new PlayList("Like");
+    PlayList dislikePlayList=new PlayList("Dislike");
+
     public MusicListPart(MyLinkList<Music> allMusics){
         musics=allMusics;
         playLists.addLast(new PlayList(allMusics,"All musics"));
         playListsName.addItem("All musics");
-
-        PlayList pl=new PlayList("fav1");
-        pl.addMusic(allMusics.get(1));
-        playLists.addLast(pl);
-        playListsName.addItem("fav1");
-
-        PlayList pl1=new PlayList("fav2");
-        pl1.addMusic(allMusics.get(0));
-        playLists.addLast(pl1);
-        playListsName.addItem("fav2");
+        playLists.addLast(likePlayList);
+        playListsName.addItem("Like");
+        playLists.addLast(dislikePlayList);
+        playListsName.addItem("Dislike");
 
         this.setTitle("Music Player");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(700,600);
+        this.setSize(700,700);
         this.setResizable(false);
         this.setLocationRelativeTo(null);
         this.setLayout(null);
@@ -44,9 +41,18 @@ public class MusicListPart extends JFrame {
 
         JButton btnSort=new JButton("Sort");
         btnSort.setBounds(10,10,100,20);
+        btnSort.addActionListener(e->{
+            values.removeAllElements();
+            MyLinkList<Music> sortedMusics=playLists.get(playListsName.getSelectedIndex()).getMusics();
+            sortedMusics.sort();
+            addMusicList(values,sortedMusics);
+        });
 
         JButton btnFilter=new JButton("Filter");
         btnFilter.setBounds(150,10,100,20);
+        btnFilter.addActionListener(e->{
+            setFilter();
+        });
 
         JButton btnSwitch=new JButton("Switch");
         btnSwitch.setBounds(530,240,150,30);
@@ -162,6 +168,69 @@ public class MusicListPart extends JFrame {
         panel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         panel.setBounds(10,40,500,400);
 
+        JLabel musicPlayed=new JLabel("");
+        musicPlayed.setBounds(10,550,500,40);
+
+        JButton btnPlay=new JButton("Play");
+        btnPlay.setBounds(100,500,100,30);
+        btnPlay.addActionListener(e->{
+            String value=list.getSelectedValue();
+            musicPlayed.setText(value);
+        });
+
+        JButton btnLike=new JButton("Like");
+        btnLike.setBounds(40,600,100,20);
+        btnLike.addActionListener(e->{
+            int index=list.getSelectedIndex();
+            System.out.println(index);
+            if(index!=-1) {
+                MyLinkList<Music> musics = playLists.get(playListsName.getSelectedIndex()).getMusics();
+                Music m = musics.get(index);
+
+                MyLinkList<Music> likePlaylistMusics = likePlayList.getMusics();
+                if (likePlaylistMusics.contain(m)) {
+                    for (int i = 0; i < likePlaylistMusics.size(); i++) {
+                        if (likePlaylistMusics.get(i) == m) {
+                            likePlaylistMusics.remove(i);
+                            if(playListsName.getSelectedItem().equals("Like")){
+                                values.removeElementAt(i);
+                            }
+                            break;
+                        }
+                    }
+                }
+                else {
+                    likePlaylistMusics.addLast(m);
+                }
+            }
+        });
+
+        JButton btnDislike=new JButton("DisLike");
+        btnDislike.setBounds(160,600,100,20);
+        btnDislike.addActionListener(e->{
+            int index=list.getSelectedIndex();
+            if(index!=-1) {
+                MyLinkList<Music> musics = playLists.get(playListsName.getSelectedIndex()).getMusics();
+                Music m = musics.get(index);
+
+                MyLinkList<Music> dislikePlaylistMusics = dislikePlayList.getMusics();
+                if (dislikePlaylistMusics.contain(m)) {
+                    for (int i = 0; i < dislikePlaylistMusics.size(); i++) {
+                        if (dislikePlaylistMusics.get(i) == m) {
+                            dislikePlaylistMusics.remove(i);
+                            if(playListsName.getSelectedItem().equals("Dislike")){
+                                values.removeElementAt(i);
+                            }
+                            break;
+                        }
+                    }
+                }
+                else {
+                    dislikePlaylistMusics.addLast(m);
+                }
+            }
+        });
+
         this.add(btnSort);
         this.add(btnFilter);
         this.add(btnAddPlayList);
@@ -172,6 +241,10 @@ public class MusicListPart extends JFrame {
         this.add(btnAddMusic);
         this.add(btnRemoveMusic);
         this.getContentPane().add(panel);
+        this.add(btnPlay);
+        this.add(musicPlayed);
+        this.add(btnLike);
+        this.add(btnDislike);
         this.setVisible(true);
     }
 
