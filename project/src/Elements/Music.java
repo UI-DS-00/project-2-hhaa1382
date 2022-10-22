@@ -72,17 +72,17 @@ public class Music implements Comparable<Music>{
 
     @Override
     public int compareTo(Music o) {
-        if(this.artistName.compareTo(o.getArtistName())>0){
+        if(this.trackName.compareTo(o.getTrackName())>0){
             return 1;
         }
-        else if(this.artistName.compareTo(o.getArtistName())<0){
+        else if(this.trackName.compareTo(o.getTrackName())<0){
             return -1;
         }
         else{
-            if(this.trackName.compareTo(o.getTrackName())>0){
+            if(this.artistName.compareTo(o.getArtistName())>0){
                 return 1;
             }
-            else if(this.trackName.compareTo(o.getTrackName())<0){
+            else if(this.artistName.compareTo(o.getArtistName())<0){
                 return -1;
             }
             else{

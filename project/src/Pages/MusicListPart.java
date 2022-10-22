@@ -5,6 +5,8 @@ import Elements.MyLinkList;
 import Elements.PlayList;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class MusicListPart extends JFrame {
     private MyLinkList<Music> musics;
@@ -70,12 +72,13 @@ public class MusicListPart extends JFrame {
         JButton btnRemovePlayList=new JButton("Remove Play List");
         btnRemovePlayList.setBounds(530,50,150,30);
         btnRemovePlayList.addActionListener(e->{
-            int index=playListsName.getSelectedIndex();
-            if(index!=-1){
-                playLists.remove(index);
-                playListsName.removeItemAt(index);
-                values.removeAllElements();
-            }
+//            int index=playListsName.getSelectedIndex();
+//            if(index!=-1){
+//                playLists.remove(index);
+//                playListsName.removeItemAt(index);
+//                values.removeAllElements();
+//            }
+            setFilter();
         });
 
         JButton btnMerge=new JButton("Merge");
@@ -163,6 +166,104 @@ public class MusicListPart extends JFrame {
         this.add(btnRemoveMusic);
         this.getContentPane().add(panel);
         this.setVisible(true);
+    }
+
+    private void setFilter(){
+        JFrame filterFrame=new JFrame("Filter");
+        filterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        filterFrame.setSize(300,400);
+        filterFrame.setResizable(false);
+        filterFrame.setLocationRelativeTo(null);
+        filterFrame.setLayout(null);
+
+        JTextField txtGenre=new JTextField();
+        txtGenre.setEditable(false);
+        txtGenre.setBounds(100,40,100,20);
+
+        JCheckBox checkGenre=new JCheckBox("Genre");
+        checkGenre.setSelected(false);
+        checkGenre.setBounds(100,10,100,20);
+        checkGenre.addActionListener(e->{
+            txtGenre.setEditable(checkGenre.isSelected());
+        });
+
+        JTextField txtArtistName=new JTextField();
+        txtArtistName.setEditable(false);
+        txtArtistName.setBounds(100,110,100,20);
+
+        JCheckBox checkArtistName=new JCheckBox("Artist Name");
+        checkArtistName.setSelected(false);
+        checkArtistName.setBounds(100,80,100,20);
+        checkArtistName.addActionListener(e->{
+            txtArtistName.setEditable(checkArtistName.isSelected());
+        });
+
+        JTextField txtData=new JTextField();
+        txtData.setEditable(false);
+        txtData.setBounds(100,180,100,20);
+
+        JCheckBox checkDate=new JCheckBox("Data");
+        checkDate.setSelected(false);
+        checkDate.setBounds(100,150,100,20);
+        checkDate.addActionListener(e->{
+            txtData.setEditable(checkDate.isSelected());
+        });
+
+        JButton btnSave=new JButton("Save");
+        btnSave.setBounds(50,250,80,30);
+        btnSave.addActionListener(e->{
+            String genre=null,artistName=null;
+            int date=0;
+
+            int index=playListsName.getSelectedIndex();
+            boolean check=false;
+
+            if(checkGenre.isSelected()){
+                check=true;
+                genre=txtGenre.getText();
+            }
+            if(checkArtistName.isSelected()){
+                check=true;
+                artistName=txtArtistName.getText();
+            }
+            if(checkDate.isSelected()){
+                try {
+                    date=Integer.parseInt(txtData.getText());
+                    check=true;
+                }
+                catch (NumberFormatException ex){
+                    JOptionPane.showMessageDialog(null,"Enter number in data text field");
+                }
+            }
+
+            if(check) {
+                MyLinkList<Music> newList = playLists.get(index).getMusicByFilter(genre, artistName, date);
+                PlayList p = new PlayList(newList, playLists.get(index).getNameByFilter(genre, artistName, date));
+                playLists.addLast(p);
+
+                values.removeAllElements();
+                addMusicList(values, newList);
+
+                filterFrame.dispose();
+                JOptionPane.showMessageDialog(null,"Play List add");
+            }
+        });
+
+        JButton btnBack=new JButton("Back");
+        btnBack.setBounds(150,250,80,30);
+        btnBack.addActionListener(e->{
+            filterFrame.dispose();
+        });
+
+        filterFrame.add(checkGenre);
+        filterFrame.add(txtGenre);
+        filterFrame.add(checkArtistName);
+        filterFrame.add(txtArtistName);
+        filterFrame.add(checkDate);
+        filterFrame.add(txtData);
+        filterFrame.add(btnSave);
+        filterFrame.add(btnBack);
+        filterFrame.setVisible(true);
     }
 
     private void setMusicList(PlayList list){
