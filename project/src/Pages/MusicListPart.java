@@ -40,10 +40,16 @@ public class MusicListPart extends JFrame {
         this.setLocationRelativeTo(null);
         this.setLayout(null);
 
-        playListsName.setBounds(530,170,150,30);
+        playListsName.setBounds(530,200,150,30);
+
+        JButton btnSort=new JButton("Sort");
+        btnSort.setBounds(10,10,100,20);
+
+        JButton btnFilter=new JButton("Filter");
+        btnFilter.setBounds(150,10,100,20);
 
         JButton btnSwitch=new JButton("Switch");
-        btnSwitch.setBounds(530,210,150,30);
+        btnSwitch.setBounds(530,240,150,30);
         btnSwitch.addActionListener(e->{
             int index=playListsName.getSelectedIndex();
             if(index!=-1){
@@ -54,7 +60,7 @@ public class MusicListPart extends JFrame {
         });
 
         JButton btnAddPlayList=new JButton("Add Play List");
-        btnAddPlayList.setBounds(530,10,150,30);
+        btnAddPlayList.setBounds(530,40,150,30);
         btnAddPlayList.addActionListener(e->{
             String name=JOptionPane.showInputDialog("Enter name for play list :");
             if(name!=null){
@@ -70,19 +76,18 @@ public class MusicListPart extends JFrame {
         });
 
         JButton btnRemovePlayList=new JButton("Remove Play List");
-        btnRemovePlayList.setBounds(530,50,150,30);
+        btnRemovePlayList.setBounds(530,80,150,30);
         btnRemovePlayList.addActionListener(e->{
-//            int index=playListsName.getSelectedIndex();
-//            if(index!=-1){
-//                playLists.remove(index);
-//                playListsName.removeItemAt(index);
-//                values.removeAllElements();
-//            }
-            setFilter();
+            int index=playListsName.getSelectedIndex();
+            if(index!=-1){
+                playLists.remove(index);
+                playListsName.removeItemAt(index);
+                values.removeAllElements();
+            }
         });
 
         JButton btnMerge=new JButton("Merge");
-        btnMerge.setBounds(530,110,150,30);
+        btnMerge.setBounds(530,140,150,30);
         btnMerge.addActionListener(e->{
             String[] valuesName=new String[playLists.size()];
             for(int i=0;i<playLists.size();i++){
@@ -122,7 +127,7 @@ public class MusicListPart extends JFrame {
         });
 
         JButton btnAddMusic=new JButton("Add Music");
-        btnAddMusic.setBounds(530,270,150,30);
+        btnAddMusic.setBounds(530,300,150,30);
         btnAddMusic.addActionListener(e->{
             String[] valuesName=new String[playLists.size()];
             for(int i=0;i<playLists.size();i++){
@@ -139,7 +144,7 @@ public class MusicListPart extends JFrame {
         });
 
         JButton btnRemoveMusic=new JButton("Remove music");
-        btnRemoveMusic.setBounds(530,310,150,30);
+        btnRemoveMusic.setBounds(530,340,150,30);
         btnRemoveMusic.addActionListener(e->{
             int index=playListsName.getSelectedIndex();
             if(index!=-1){
@@ -155,8 +160,10 @@ public class MusicListPart extends JFrame {
         panel=new JScrollPane(list);
         panel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         panel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        panel.setBounds(10,10,500,400);
+        panel.setBounds(10,40,500,400);
 
+        this.add(btnSort);
+        this.add(btnFilter);
         this.add(btnAddPlayList);
         this.add(btnRemovePlayList);
         this.add(btnMerge);
