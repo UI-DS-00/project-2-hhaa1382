@@ -1,10 +1,12 @@
 package Pages;
 
+import Data.Write;
 import Elements.Music;
 import Elements.MyLinkList;
 import Elements.PlayList;
 
 import javax.swing.*;
+import java.sql.SQLException;
 
 public class MusicListPart extends JFrame {
     private MyLinkList<Music> musics;
@@ -51,34 +53,53 @@ public class MusicListPart extends JFrame {
         JButton btnAddPlayList=new JButton("Add Play List");
         btnAddPlayList.setBounds(530,40,150,30);
         btnAddPlayList.addActionListener(e->{
-            String name=JOptionPane.showInputDialog("Enter name for play list :");
-            if(name!=null){
-                if(checkPlayListName(name)){
-                    playListsName.addItem(name);
-                    playLists.addLast(new PlayList(name));
-                    JOptionPane.showMessageDialog(null,"Play list add");
+            try {
+                String name = JOptionPane.showInputDialog("Enter name for play list :");
+                if (name != null) {
+                    if (checkPlayListName(name)) {
+                        playListsName.addItem(name);
+                        playLists.addLast(new PlayList(name));
+                        JOptionPane.showMessageDialog(null, "Play list add");
+                        Write.writePlayList(name);
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(null, "Play list name is duplicated");
+                    }
                 }
-                else{
-                    JOptionPane.showMessageDialog(null,"Play list name is duplicated");
-                }
+            }
+            catch (SQLException | ClassNotFoundException ex) {
+                ex.printStackTrace();
             }
         });
 
         JButton btnRemovePlayList=new JButton("Remove Play List");
         btnRemovePlayList.setBounds(530,80,150,30);
         btnRemovePlayList.addActionListener(e->{
-            int index=playListsName.getSelectedIndex();
-            if(index!=-1){
-                playLists.remove(index);
-                playListsName.removeItemAt(index);
-                values.removeAllElements();
+            try {
+                int index = playListsName.getSelectedIndex();
+                if (index != -1) {
+                    playLists.remove(index);
+
+                    Write.deletePlayList((String) playListsName.getSelectedItem());
+
+                    playListsName.removeItemAt(index);
+                    values.removeAllElements();
+                }
+            }
+            catch (SQLException | ClassNotFoundException ex) {
+                ex.printStackTrace();
             }
         });
 
         JButton btnMerge=new JButton("Merge");
         btnMerge.setBounds(530,140,150,30);
         btnMerge.addActionListener(e->{
-            mergePart();
+            try {
+                mergePart();
+            }
+            catch (ClassNotFoundException | SQLException ex){
+                ex.printStackTrace();
+            }
         });
 
         JButton shuffleMerge=new JButton("Shuffle merge");
@@ -103,28 +124,41 @@ public class MusicListPart extends JFrame {
         JButton btnAddMusic=new JButton("Add Music");
         btnAddMusic.setBounds(530,340,150,30);
         btnAddMusic.addActionListener(e->{
-            String[] valuesName=new String[playLists.size()];
-            for(int i=0;i<playLists.size();i++){
-                valuesName[i]=playLists.get(i).getName();
+            try {
+                String[] valuesName = new String[playLists.size()];
+                for (int i = 0; i < playLists.size(); i++) {
+                    valuesName[i] = playLists.get(i).getName();
+                }
+
+                String ans = (String) JOptionPane.showInputDialog(null, "Choose a play list", "Play lists",
+                        JOptionPane.QUESTION_MESSAGE, null, valuesName, null);
+
+                if (ans != null) {
+                    PlayList temp = playLists.get(getIndex(ans, valuesName));
+                    temp.addMusic(musics.get(list.getSelectedIndex()));
+                    Write.writeMusics(temp.getName(), musics.get(list.getSelectedIndex()).getTrackName());
+                }
             }
-
-            String ans=(String) JOptionPane.showInputDialog(null,"Choose a play list","Play lists",
-                    JOptionPane.QUESTION_MESSAGE,null,valuesName,null);
-
-            if(ans!=null){
-                PlayList temp=playLists.get(getIndex(ans,valuesName));
-                temp.addMusic(musics.get(list.getSelectedIndex()));
+            catch (ClassNotFoundException | SQLException ex){
+                ex.printStackTrace();
             }
         });
 
         JButton btnRemoveMusic=new JButton("Remove music");
         btnRemoveMusic.setBounds(530,380,150,30);
         btnRemoveMusic.addActionListener(e->{
-            int index=playListsName.getSelectedIndex();
-            if(index!=-1){
-                PlayList p=playLists.get(index);
-                p.removeMusic(list.getSelectedIndex());
-                values.removeElementAt(list.getSelectedIndex());
+            try {
+                int index = playListsName.getSelectedIndex();
+                if (index != -1) {
+                    PlayList p = playLists.get(index);
+                    Write.deletePlayListMusic(p.getName(),(String) playListsName.getSelectedItem());
+
+                    p.removeMusic(list.getSelectedIndex());
+                    values.removeElementAt(list.getSelectedIndex());
+                }
+            }
+            catch (SQLException | ClassNotFoundException ex) {
+                ex.printStackTrace();
             }
         });
 
@@ -146,32 +180,24 @@ public class MusicListPart extends JFrame {
         JButton btnLike=new JButton("Like");
         btnLike.setBounds(40,600,100,20);
         btnLike.addActionListener(e->{
-            likePart();
+            try {
+                likePart();
+            }
+            catch (ClassNotFoundException | SQLException ex){
+                ex.printStackTrace();
+            }
         });
 
         JButton btnDislike=new JButton("DisLike");
         btnDislike.setBounds(160,600,100,20);
         btnDislike.addActionListener(e->{
-            disLikePart();
+            try {
+                disLikePart();
+            }
+            catch (ClassNotFoundException | SQLException ex){
+                ex.printStackTrace();
+            }
         });
-
-//        Thread playingMusic=new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    synchronized (checkPlay){
-//                        while (true) {
-//                            checkPlay.wait();
-//                            String value = list.getSelectedValue();
-//                            musicPlayed.setText(value);
-//                            MyLinkList<Music> musics = playLists.get(playListsName.getSelectedIndex()).getMusics();
-//                        }
-//                    }
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
 
         this.add(btnSort);
         this.add(btnFilter);
@@ -198,7 +224,7 @@ public class MusicListPart extends JFrame {
         this.setVisible(true);
     }
 
-    private void likePart(){
+    private void likePart() throws ClassNotFoundException,SQLException{
         int index=list.getSelectedIndex();
         if(index!=-1) {
             MyLinkList<Music> musics = playLists.get(playListsName.getSelectedIndex()).getMusics();
@@ -210,6 +236,7 @@ public class MusicListPart extends JFrame {
                     if (likePlaylistMusics.get(i) == m) {
                         likePlaylistMusics.remove(i);
                         if(playListsName.getSelectedItem().equals("Like")){
+                            Write.deletePlayListMusic("Like",m.getTrackName());
                             values.removeElementAt(i);
                         }
                         break;
@@ -218,11 +245,12 @@ public class MusicListPart extends JFrame {
             }
             else {
                 likePlaylistMusics.addLast(m);
+                Write.writeMusics("Like",m.getTrackName());
             }
         }
     }
 
-    private void disLikePart(){
+    private void disLikePart() throws ClassNotFoundException,SQLException{
         int index=list.getSelectedIndex();
         if(index!=-1) {
             MyLinkList<Music> musics = playLists.get(playListsName.getSelectedIndex()).getMusics();
@@ -235,6 +263,7 @@ public class MusicListPart extends JFrame {
                         dislikePlaylistMusics.remove(i);
                         if(playListsName.getSelectedItem().equals("Dislike")){
                             values.removeElementAt(i);
+                            Write.deletePlayListMusic("Dislike",m.getTrackName());
                         }
                         break;
                     }
@@ -242,11 +271,12 @@ public class MusicListPart extends JFrame {
             }
             else {
                 dislikePlaylistMusics.addLast(m);
+                Write.writeMusics("Dislike",m.getTrackName());
             }
         }
     }
 
-    private void mergePart(){
+    private void mergePart() throws ClassNotFoundException,SQLException{
         String[] valuesName=new String[playLists.size()];
         for(int i=0;i<playLists.size();i++){
             valuesName[i]=playLists.get(i).getName();
@@ -263,18 +293,22 @@ public class MusicListPart extends JFrame {
             MyLinkList<Music> firstList=playLists.get(firstIndex).getMusics();
             MyLinkList<Music> newList=new MyLinkList<>();
 
+            String name=playLists.get(firstIndex).getName()+" & "+playLists.get(secondIndex).getName();
+            PlayList p=new PlayList(newList,name);
+            Write.writePlayList(name);
+
             for(int i=0;i<firstList.size();i++){
                 newList.addLast(firstList.get(i));
+                Write.writeMusics(name,firstList.get(i).getTrackName());
             }
 
             for(int i=0;i<secondList.size();i++){
                 if(!newList.contain(secondList.get(i))) {
                     newList.addLast(secondList.get(i));
+                    Write.writeMusics(name,secondList.get(i).getTrackName());
                 }
             }
 
-            String name=playLists.get(firstIndex).getName()+" & "+playLists.get(secondIndex).getName();
-            PlayList p=new PlayList(newList,name);
             playLists.addLast(p);
             playListsName.addItem(name);
             values.removeAllElements();
@@ -331,26 +365,34 @@ public class MusicListPart extends JFrame {
         JButton save=new JButton("Save");
         save.setBounds(25,120,100,30);
         save.addActionListener(e->{
-            MyLinkList<Music> musics=new MyLinkList<>();
+            try {
+                MyLinkList<Music> musics = new MyLinkList<>();
 
-            for(int i=0;i<savedValues.getItemCount();i++){
-                PlayList p=findPlayList(savedValues.getItemAt(i));
-                if(p!=null) {
-                    MyLinkList<Music> playListMusics = p.getMusics();
-                    for(int j=0;j<playListMusics.size();j++){
-                        Music m=playListMusics.get(j);
-                        if(!musics.contain(m)){
-                            musics.addLast(m);
+                String name = getShuffleListName(savedValues);
+                PlayList newPlayList = new PlayList(musics, name);
+                Write.writePlayList(name);
+
+                for (int i = 0; i < savedValues.getItemCount(); i++) {
+                    PlayList p = findPlayList(savedValues.getItemAt(i));
+                    if (p != null) {
+                        MyLinkList<Music> playListMusics = p.getMusics();
+                        for (int j = 0; j < playListMusics.size(); j++) {
+                            Music m = playListMusics.get(j);
+                            if (!musics.contain(m)) {
+                                musics.addLast(m);
+                                Write.writeMusics(p.getName(),m.getTrackName());
+                            }
                         }
                     }
                 }
-            }
 
-            String name=getShuffleListName(savedValues);
-            PlayList newPlayList=new PlayList(musics,name);
-            playLists.addLast(newPlayList);
-            playListsName.addItem(name);
-            shuffleFrame.dispose();
+                playLists.addLast(newPlayList);
+                playListsName.addItem(name);
+                shuffleFrame.dispose();
+            }
+            catch (ClassNotFoundException | SQLException ex){
+                ex.printStackTrace();
+            }
         });
 
         JButton back=new JButton("Back");

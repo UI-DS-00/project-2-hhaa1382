@@ -1,7 +1,6 @@
 package Data;
 
 import Elements.Music;
-import Elements.MyLinkList;
 import Elements.PlayList;
 
 import java.sql.Connection;
@@ -14,45 +13,44 @@ public class Write {
     private static final String username="root";
     private static final String password="hhaa1382";
 
-    public static void writePlayLists(MyLinkList<PlayList> playLists) throws ClassNotFoundException, SQLException {
+    public static void writePlayList(String name) throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection connect= DriverManager.getConnection(url,username,password);
 
-        StringBuilder sql=new StringBuilder();
-        Statement st;
-
-        for(int i=0;i<playLists.size();i++){
-            sql.append("insert into play_lists values('"+playLists.get(i).getName()+"')");
-            st=connect.prepareStatement(sql.toString());
-            st.execute(sql.toString());
-
-            int size=sql.length();
-            sql.delete(0,size);
-        }
+        String sql="insert into play_lists values('"+name+"')";
+        Statement st=connect.prepareStatement(sql);
+        st.execute(sql);
     }
 
-    public static void writeMusics(MyLinkList<PlayList> playLists) throws ClassNotFoundException, SQLException {
+    public static void writeMusics(String playListName,String musicName) throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection connect= DriverManager.getConnection(url,username,password);
 
-        StringBuilder sql=new StringBuilder();
-        Statement st;
+        String sql="insert into musics_list values('"+playListName+"','"+musicName+"')";
+        Statement st=connect.prepareStatement(sql);
+        st.execute(sql);
+    }
 
-        for(int i=0;i<playLists.size();i++){
-            sql.append("insert into musics_list values('"+playLists.get(i).getName()+"','");
-            int size1=sql.length();
+    public static void deletePlayList(String playListName) throws ClassNotFoundException, SQLException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection connect= DriverManager.getConnection(url,username,password);
 
-            MyLinkList<Music> musics=playLists.get(i).getMusics();
-            for(int j=0;j<musics.size();j++){
-                sql.append(musics.get(i).getTrackName()+"')");
-                st=connect.prepareStatement(sql.toString());
-                st.execute(sql.toString());
+        String sqlPlayLists="delete from play_lists where names='"+playListName+"'";
+        String sqlPlayListMusic="delete from musics_list where play_list_name='"+playListName+"'";
 
-                int size2=sql.length();
-                sql.delete(size1,size2);
-            }
+        Statement st=connect.prepareStatement(sqlPlayLists);
+        st.execute(sqlPlayLists);
 
-            sql.delete(0,size1);
-        }
+        st=connect.prepareStatement(sqlPlayListMusic);
+        st.execute(sqlPlayListMusic);
+    }
+
+    public static void deletePlayListMusic(String playListName,String musicName) throws ClassNotFoundException, SQLException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection connect= DriverManager.getConnection(url,username,password);
+
+        String sql="delete from musics_list where play_list_name='"+playListName+"' AND music_name='"+musicName+"'";
+        Statement st=connect.prepareStatement(sql);
+        st.execute(sql);
     }
 }
