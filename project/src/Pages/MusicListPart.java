@@ -159,7 +159,7 @@ public class MusicListPart extends JFrame {
 
                     if(!name.equals("All musics")) {
                         PlayList p = playLists.get(index);
-                        Write.deletePlayListMusic(p.getName(), (String) playListsName.getSelectedItem());
+                        Write.deletePlayListMusic(name,p.getMusics().get(list.getSelectedIndex()).getTrackName());
 
                         p.removeMusic(list.getSelectedIndex());
                         values.removeElementAt(list.getSelectedIndex());
