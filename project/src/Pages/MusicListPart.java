@@ -1,5 +1,6 @@
 package Pages;
 
+import Data.Read;
 import Data.Write;
 import Elements.Music;
 import Elements.MyLinkList;
@@ -20,10 +21,10 @@ public class MusicListPart extends JFrame {
 
     private final Object checkPlay=new Object();
 
-    PlayList likePlayList=new PlayList("Like");
-    PlayList dislikePlayList=new PlayList("Dislike");
+    PlayList likePlayList;
+    PlayList dislikePlayList;
 
-    public MusicListPart(MyLinkList<Music> allMusics){
+    public MusicListPart(MyLinkList<Music> allMusics) throws SQLException, ClassNotFoundException {
         this.setTitle("Music Player");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(700,700);
@@ -78,12 +79,16 @@ public class MusicListPart extends JFrame {
             try {
                 int index = playListsName.getSelectedIndex();
                 if (index != -1) {
-                    playLists.remove(index);
+                    String name=(String) playListsName.getSelectedItem();
 
-                    Write.deletePlayList((String) playListsName.getSelectedItem());
+                    if(!name.equals("All musics") && !name.equals("Like") && !name.equals("Dislike")) {
+                        playLists.remove(index);
 
-                    playListsName.removeItemAt(index);
-                    values.removeAllElements();
+                        Write.deletePlayList((String) playListsName.getSelectedItem());
+
+                        playListsName.removeItemAt(index);
+                        values.removeAllElements();
+                    }
                 }
             }
             catch (SQLException | ClassNotFoundException ex) {
@@ -150,11 +155,15 @@ public class MusicListPart extends JFrame {
             try {
                 int index = playListsName.getSelectedIndex();
                 if (index != -1) {
-                    PlayList p = playLists.get(index);
-                    Write.deletePlayListMusic(p.getName(),(String) playListsName.getSelectedItem());
+                    String name=(String) playListsName.getSelectedItem();
 
-                    p.removeMusic(list.getSelectedIndex());
-                    values.removeElementAt(list.getSelectedIndex());
+                    if(!name.equals("All musics")) {
+                        PlayList p = playLists.get(index);
+                        Write.deletePlayListMusic(p.getName(), (String) playListsName.getSelectedItem());
+
+                        p.removeMusic(list.getSelectedIndex());
+                        values.removeElementAt(list.getSelectedIndex());
+                    }
                 }
             }
             catch (SQLException | ClassNotFoundException ex) {
@@ -318,20 +327,25 @@ public class MusicListPart extends JFrame {
         }
     }
 
-    private void addDefaultPlayLists(MyLinkList<Music> allMusics){
+    private void addDefaultPlayLists(MyLinkList<Music> allMusics) throws SQLException, ClassNotFoundException {
         musics=allMusics;
+
         playLists.addLast(new PlayList(allMusics,"All musics"));
         playListsName.addItem("All musics");
 
-        likePlayList.addMusic(allMusics.get(10));
-        likePlayList.addMusic(allMusics.get(9));
-        playLists.addLast(likePlayList);
-        playListsName.addItem("Like");
+        MyLinkList<PlayList> tempPlayLists= Read.readPlayLists(allMusics);
 
-        dislikePlayList.addMusic(allMusics.get(1));
-        dislikePlayList.addMusic(allMusics.get(2));
-        playLists.addLast(dislikePlayList);
-        playListsName.addItem("Dislike");
+        for(int i=0;i<tempPlayLists.size();i++){
+            playLists.addLast(tempPlayLists.get(i));
+            playListsName.addItem(tempPlayLists.get(i).getName());
+
+            if(tempPlayLists.get(i).getName().equals("Like")){
+                likePlayList=tempPlayLists.get(i);
+            }
+            else if(tempPlayLists.get(i).getName().equals("Dislike")){
+                dislikePlayList=tempPlayLists.get(i);
+            }
+        }
     }
 
     private void shuffleMergePart(){
@@ -500,6 +514,7 @@ public class MusicListPart extends JFrame {
                 MyLinkList<Music> newList = playLists.get(index).getMusicByFilter(genre, artistName, date);
                 PlayList p = new PlayList(newList, playLists.get(index).getNameByFilter(genre, artistName, date));
                 playLists.addLast(p);
+                playListsName.addItem(p.getName());
 
                 values.removeAllElements();
                 addMusicList(values, newList);

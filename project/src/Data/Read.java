@@ -5,6 +5,7 @@ import Elements.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.*;
 
 public class Read {
     public static MyLinkList<Music> readMusics() throws IOException {
@@ -23,12 +24,43 @@ public class Read {
         return linkList;
     }
 
-    private static String getToString(String[] values){
-        StringBuilder temp=new StringBuilder();
-        for(String s:values){
-            temp.append(s+" , ");
+    public static MyLinkList<PlayList> readPlayLists(MyLinkList<Music> allMusics) throws ClassNotFoundException, SQLException {
+        final String url="jdbc:mysql://localhost/music_play_project";
+        final String username="root";
+        final String password="hhaa1382";
+
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection connect= DriverManager.getConnection(url,username,password);
+
+        MyLinkList<PlayList> playLists=new MyLinkList<>();
+        String sqlPlayLists="select * from play_lists";
+        Statement st=connect.prepareStatement(sqlPlayLists);
+        ResultSet rs=st.executeQuery(sqlPlayLists);
+
+        while (rs.next()){
+            String name=rs.getString("names");
+
+            MyLinkList<Music> musics=new MyLinkList<>();
+            String sqlPlayListMusics="select * from musics_list where play_list_name='"+name+"'";
+            Statement tempSt=connect.prepareStatement(sqlPlayListMusics);
+            ResultSet tempRs=tempSt.executeQuery(sqlPlayListMusics);
+
+            while (tempRs.next()){
+                musics.addLast(getMusicByName(tempRs.getString("music_name"),allMusics));
+            }
+            playLists.addLast(new PlayList(musics,name));
         }
-        return temp.toString();
+        return playLists;
+    }
+
+    private static Music getMusicByName(String name,MyLinkList<Music> allMusics){
+        for(int i=0;i<allMusics.size();i++){
+            Music m=allMusics.get(i);
+            if(m.getTrackName().equals(name)){
+                return allMusics.get(i);
+            }
+        }
+        return null;
     }
 
     private static Music getMusic(String[] values){
